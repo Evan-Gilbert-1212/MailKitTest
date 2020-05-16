@@ -12,3 +12,46 @@ code {
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
+
+.email-form {
+  display: flex;
+  flex-direction: column;
+
+  div {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+
+    label {
+      grid-column-start: 1;
+      grid-column-end: 2;
+    }
+
+    input {
+      grid-column-start: 2;
+      grid-column-end: 3;
+      width: 300px;
+      border-radius: 5px;
+      border-width: 1px;
+    }
+
+    textarea {
+      border-radius: 5px;
+      border-width: 1px;
+    }
+  }
+}
+
+.send-email {
+  margin-top: 1rem;
+  text-align: center;
+
+  button {
+    border-radius: 5px;
+    border-style: none;
+    background-color: green;
+    color: white;
+    width: 100px;
+  }
+}

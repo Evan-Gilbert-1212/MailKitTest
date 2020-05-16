@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using MailKitTest.Models;
-using Microsoft.AspNetCore.Http;
+using MailKitTest.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using MailKit.Net.Smtp;
-using MailKit;
 using MimeKit;
 
 namespace MailKitTest.Controllers
@@ -23,33 +19,41 @@ namespace MailKitTest.Controllers
     }
 
     [HttpPost]
-    public async Task<ActionResult> SendEmail(Email emailToSend)
+    public async Task<ActionResult> SendEmail(IncomingEmailData emailToSend)
     {
-      emailToSend.Sender = "Evan Gilbert";
-      emailToSend.EmailAddressFrom = "Evan.Gilbert1212@gmail.com";
+      var newEmail = new Email()
+      {
+        Sender = "Evan Gilbert",
+        EmailAddressFrom = "Evan.Gilbert1212@gmail.com",
+        Recipient = emailToSend.Recipient,
+        EmailAddressTo = emailToSend.EmailAddressTo,
+        EmailSubject = emailToSend.EmailSubject,
+        EmailBody = emailToSend.EmailBody
+      };
 
-      _context.Emails.Add(emailToSend);
+      _context.Emails.Add(newEmail);
       await _context.SaveChangesAsync();
 
       //send email
       var message = new MimeMessage();
 
-      message.From.Add(new MailboxAddress(emailToSend.Sender, emailToSend.EmailAddressFrom));
-      message.To.Add(new MailboxAddress(emailToSend.Recipient, emailToSend.EmailAddressTo));
+      message.From.Add(new MailboxAddress(newEmail.Sender, newEmail.EmailAddressFrom));
+      message.To.Add(new MailboxAddress(newEmail.Recipient, newEmail.EmailAddressTo));
 
-      message.Subject = emailToSend.EmailSubject;
+      message.Subject = newEmail.EmailSubject;
 
       message.Body = new TextPart("plain")
       {
-        Text = @emailToSend.EmailBody
+        Text = @newEmail.EmailBody
       };
 
       using (var client = new SmtpClient())
       {
-        client.Connect("smtp.gmail.com", 587, true);
+        client.Connect("smtp.gmail.com", 465, true);
 
         //Only if SMTP server requires authentication
-        client.Authenticate("Evan.Gilbert1212@gmail.com", "O3lC1t41212");
+        //need to authenticate user via OAuth 2.0 if using gmail for secure authentication
+        client.Authenticate(newEmail.EmailAddressFrom, "password");
 
         client.Send(message);
         client.Disconnect(true);
